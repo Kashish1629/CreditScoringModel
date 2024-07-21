@@ -1,0 +1,54 @@
+#STEP 1:IMPORTING LIBRARIES AND LOADING DATA
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+#STEP 2:DATA PREPROCESSING
+# Load the dataset
+df = pd.read_csv('credit_data.csv')
+
+# Handle missing values
+df.fillna(df.mean(), inplace=True)
+
+# Encode categorical variables
+le = LabelEncoder()
+df['credit_history'] = le.fit_transform(df['credit_history'])
+df['employment_status'] = le.fit_transform(df['employment_status'])
+
+# Scale the data
+scaler = StandardScaler()
+df[['income', 'age']] = scaler.fit_transform(df[['income', 'age']])
+
+# Split the data into training and testing sets
+X = df.drop('credit_score', axis=1)
+y = df['credit_score']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+STEP:3 MODEL BUILDING
+# Logistic Regression
+log_reg = LogisticRegression(random_state=42)
+log_reg.fit(X_train, y_train)
+
+# Decision Tree
+dt = DecisionTreeClassifier(random_state=42)
+dt.fit(X_train, y_train)
+
+# Random Forest
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+
+STEP4: MODEL EVALUATION
+# Evaluate the models
+models = [log_reg, dt, rf]
+for model in models:
+    y_pred = model.predict(X_test)
+    print(f'Model: {model.__class__.__name__}')
+    print(f'Accuracy: {accuracy_score(y_test, y_pred):.4f}')
+    print(f'Classification Report:\n{classification_report(y_test, y_pred)}')
+    print(f'Confusion Matrix:\n{confusion_matrix(y_test, y_pred)}')
+    print('---')
+
